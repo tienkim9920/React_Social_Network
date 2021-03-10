@@ -1,0 +1,128 @@
+
+
+.navbar{
+    border-bottom: 1px solid rgb(219, 219, 219) !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9999 !important;
+}
+
+.fix_navbar{
+    width: 100%;
+    justify-content: center;
+}
+
+.group_search{
+    position: relative;
+}
+
+.fix_icon_search{
+    font-size: 1.1rem;
+    color: #888888;
+    position: absolute;
+    left: 85%;
+    top: 19%;
+}
+
+.txt_search{
+    background-color: #FAFAFA;
+    outline: 1px solid #FAFAFA;
+    border: 1px solid #dddddd;
+    border-radius: .2rem;
+    padding: .1rem .6rem;
+}
+
+.img_profile{
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid #dddddd;
+}
+
+.dropdown-menu{
+    left: -180px !important;
+    top: 120%;
+    min-width: 12rem !important;
+}
+
+.li_profile{
+    margin: 0 .7rem;
+    cursor: pointer;
+}
+
+.font_title{
+    font-family: 'Courgette', cursive;
+    font-size: 1.4rem;
+}
+
+.image_drop_tym{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-top: .7rem;
+}
+
+.image_drop_like{
+    width: 40px;
+    height: 40px;
+}
+
+.a_deny{
+    margin-top: 1.15rem;
+    padding: .1rem .8rem;
+    border: 1px solid rgb(211, 211, 211);
+    color: black;
+    font-weight: 600;
+}
+
+.a_accept{
+    margin-top: 1.15rem;
+    padding: .1rem .8rem;
+    background-color: rgb(0, 153, 255);
+    color: #fff !important;
+}
+
+.drop_menu_notice{
+    position: fixed;
+    top: 4rem;
+    left: 55.5%;
+    width: 31%;
+    height: 300px;
+    overflow: auto !important;
+    background-color: #fff;
+}
+
+.drop_menu_search{
+    position: fixed;
+    top: 4rem;
+    left: 31%;
+    width: 30%;
+    height: 300px;
+    overflow: auto !important;
+    background-color: #fff;
+}
+
+.navbar-nav{
+    flex-direction: row;
+    /* justify-content: center; */
+}
+
+@media only screen and (max-width: 400px) {
+    .drop_menu_notice{
+        top: 7.5rem;
+        left: 2%;
+        width: 75%;
+    }
+
+    .drop_menu_search{
+        top: 7.5rem;
+        left: 2%;
+        width: 75%;
+    }
+
+    .fix_navbar{
+        justify-content: start;
+    }
+}

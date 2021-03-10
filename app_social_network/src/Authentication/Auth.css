@@ -1,0 +1,39 @@
+
+
+.group_authentication{
+    width: 400px;
+    background-color: #fff;
+    margin-top: 9rem;
+    border: 1px solid rgb(211, 211, 211);
+}
+
+.auth_sub{
+    width: 400px;
+    margin-top: 1.5rem;
+    background-color: #fff;
+    border: 1px solid rgb(211, 211, 211);
+    padding: 1rem 2rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.header_authentication{
+    font-size: 3rem;
+    padding: 2rem;
+}
+
+.txt_authentication{
+    width: 70%;
+    padding: .4rem .8rem;
+    border: 1px solid rgb(211, 211, 211);
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    border-radius: .2rem;
+}
+
+.btn_authentication{
+    width: 70%;
+}
+
+.hr_authentication{
+    width: 70%;
+}

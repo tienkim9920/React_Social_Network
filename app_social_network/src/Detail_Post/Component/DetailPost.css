@@ -1,0 +1,48 @@
+
+
+.group_detail_post{
+    display: grid;
+    grid-template-columns: 1.3fr .7fr;
+    width: 85%;
+    height: 630px;
+    margin: auto;
+    border: 1px solid rgb(211, 211, 211);
+}
+
+.group_image_detail_post{
+    background-color: red;
+    width: 100%;
+
+}
+
+.group_content_detail_post{
+    background-color: #fff;
+    width: 100%;
+
+}
+
+.image_detail_post{
+    width: 100%;
+    height: 100%;
+}
+
+.image_header_detail_post{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.body_detail_post{
+    width: 100%;
+    height: 370px;
+    overflow: auto;
+}
+
+@media only screen and (max-width: 400px) {
+    .group_detail_post{
+        margin-top: 4rem;
+        padding-bottom: 1.5rem !important;
+        width: 90%;
+        grid-template-columns: auto !important;
+    }
+}

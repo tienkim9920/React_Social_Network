@@ -1,0 +1,117 @@
+
+
+.group_chat{
+    background-color: #fff;
+    width: 85%;
+    height: 630px;
+    margin: auto !important;
+    border-radius: .2rem;
+    border: 1px solid rgb(211, 211, 211);
+    display: grid;
+    grid-template-columns: .8fr 1.2fr;
+}
+
+.group_list_user{
+    border-right: 1px solid rgb(211, 211, 211);
+}
+
+.group_list_message{
+
+}
+
+.p_header_list_user{
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.txt_message_search{
+    outline: none;
+    border: 1px solid rgb(211, 211, 211);
+    height: 27px;
+    padding: .2rem .6rem;
+    width: 50%;
+}
+
+.image_personal{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+}
+
+.group_personal{
+    cursor: pointer;
+}
+
+.group_personal:hover{
+    background-color: rgb(247, 247, 247);
+}
+
+.personal_active{
+    background-color: rgb(241, 241, 241) !important;
+}
+
+.image_message{
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-top: .6rem;
+    margin-left: 2rem !important;
+}
+
+.header_list_message{
+    padding: .35rem 0 0 0;
+}
+
+.hr_message{
+    margin-top: .2rem !important;
+    margin-bottom: 0rem !important;
+}
+
+.group_friend_chat{
+    width: 100%;
+    height: 510px;
+    overflow: auto;
+}
+
+.a_message_send{
+    background-color: #EFEFEF;
+    padding: .6rem 1.2rem;
+    border-radius: 5rem;
+    color: black;
+    font-size: .9rem;
+}
+
+.a_message_receive{
+    background-color: #fff;
+    padding: .6rem 1.2rem;
+    border-radius: 5rem;
+    color: black;
+    font-size: .9rem;
+    border: 1px solid rgb(235, 235, 235);
+}
+
+.body_list_message{
+    padding: 0 1rem;
+}
+
+.message_receive{
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+}
+
+.footer_list_message{
+    padding: 1rem 2rem 2rem 2rem;
+}
+
+.icon_message_send{
+    border: 1px solid rgb(235, 235, 235);
+    padding: .4rem 1.2rem;
+    border-radius: 2rem;
+}
+
+.body_list_message{
+    width: 100%;
+    height: 487px;
+    overflow: auto;
+}
