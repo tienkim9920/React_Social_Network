@@ -3,8 +3,9 @@ var mongoose = require('mongoose');
 var schema = new mongoose.Schema(
     {
         id_image_post: String,
-        id_user: Sring,
-        username_user: String,
+        id_user: String,
+        image_profile: String,
+        username: String,
         cmt_user: String,
     }
 );

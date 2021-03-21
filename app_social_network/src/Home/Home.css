@@ -15,6 +15,7 @@
     cursor: pointer;
     font-size: 1.2rem;
     color: rgb(158, 158, 158) !important;
+    margin-left: 1rem;
 }
 
 .img_status{
@@ -149,6 +150,11 @@
     cursor: pointer;
 }
 
+.post_header{
+    text-decoration: none !important;
+    color: #323232;
+}
+
 .title_user_me{
     width: 80%;
 }
@@ -187,4 +193,15 @@
 .input_footer{
     outline: none;
     border: none;
+}
+
+.fix-modal-body{
+    width: 100%;
+    height: 300px;
+    overflow: auto;
+}
+
+.img_title img{
+    width: 20px;
+    height: 20px;
 }

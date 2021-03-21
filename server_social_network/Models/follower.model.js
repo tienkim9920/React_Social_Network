@@ -2,8 +2,8 @@ var mongoose = require('mongoose');
 
 var schema = new mongoose.Schema(
     {
+        id_user: String,
         id_user_follower: String,
-        id_user: String
     }
 );
 

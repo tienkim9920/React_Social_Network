@@ -40,6 +40,7 @@
 
 .group_personal{
     cursor: pointer;
+    position: relative;
 }
 
 .group_personal:hover{
@@ -91,7 +92,7 @@
 }
 
 .body_list_message{
-    padding: 0 1rem;
+    padding: .8rem 1rem;
 }
 
 .message_receive{
@@ -114,4 +115,14 @@
     width: 100%;
     height: 487px;
     overflow: auto;
+}
+
+.count_message{
+    position: absolute;
+    top: 1rem;
+    left: 55%;
+    color: #fff;
+    background-color: rgb(253, 39, 39);
+    padding: .4rem .9rem;
+    border-radius: 50%;
 }

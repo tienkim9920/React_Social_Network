@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import avt from '../Image/test.jpg'
-import avt2 from '../Image/avt.jpg'
-import avt3 from '../Image/123.jpg'
-import avt4 from '../Image/4.jpg'
-import avt5 from '../Image/5.jpg'
 import './Home.css'
 import { Link } from 'react-router-dom';
 import { storage } from '../Config/firebase'
 import Users_Home from '../API/Users_Home';
 import queryString from 'query-string'
 import UsersAPI from '../API/UsersAPI';
+import Notification from '../API/Notification';
+import Like from '../API/Like';
+import Favorite from '../API/Favorite';
+import Following from '../API/Following';
+import parse from 'html-react-parser';
+
+import io from "socket.io-client";
+const socket = io("http://localhost:8080");
 
 Home.propTypes = {
 
@@ -100,7 +104,7 @@ function Home(props) {
 
                             const params = {
                                 id_user: sessionStorage.getItem('id_user'),
-                                title: send,
+                                title: formatIcon(send),
                                 image_body: url
                             }
 
@@ -127,11 +131,40 @@ function Home(props) {
     }
 
 
+
     // -----------------------PHAN HOME-----------------------------//
 
     const [list_post_home, set_list_post_home] = useState([])
 
-    const [reload, set_reload] = useState(true)
+    const [reload, set_reload] = useState(false)
+
+
+    // Hàm này dùng để load bài viết ở trang home lan dau tien
+    useEffect(() => {
+
+        const fetchData = async () => {
+
+            const params = {
+                id_user: sessionStorage.getItem('id_user')
+            }
+
+            const query = '?' + queryString.stringify(params)
+
+            const response = await Users_Home.get_Users_Home(query)
+
+            const reverse_data = response.reverse() // Đảo ngược dữ liệu lên trên đầu
+
+            const data = status_like(reverse_data)
+
+            set_list_post_home(data)
+
+        }
+
+        fetchData()
+
+
+    }, [])
+
 
     // Hàm này dùng để load bài viết ở trang home phụ thuộc vào state reload
     useEffect(() => {
@@ -149,8 +182,6 @@ function Home(props) {
                 const response = await Users_Home.get_Users_Home(query)
 
                 const reverse_data = response.reverse() // Đảo ngược dữ liệu lên trên đầu
-
-                random_status_home(reverse_data)
 
                 set_list_post_home(reverse_data)
 
@@ -183,6 +214,21 @@ function Home(props) {
 
             }
 
+        }
+
+        return array_new
+
+    }
+
+
+    function status_like(data) {
+
+        let array_new = []
+
+        for (let i = 0; i < data.length; i++) {
+            if (!data[i].status_like) {
+                array_new.push(data[i])
+            }
         }
 
         return array_new
@@ -225,8 +271,14 @@ function Home(props) {
                 return value._id !== sessionStorage.getItem('id_user')
             })
 
-            // Tiếp theo là cắt user lấy 5 user
-            set_user_all(filter_Users.splice(0, 5))
+            const response_following = await Following.get_following(sessionStorage.getItem('id_user'))
+            console.log(response_following)
+
+            // Tiếp theo là cắt user lấy 5 user khác mà user chưa following
+            const data_user = Filter_Users(filter_Users, response_following)
+            const data_5_user = data_user.splice(0, 5)
+
+            set_user_all(data_5_user)
 
         }
 
@@ -236,6 +288,212 @@ function Home(props) {
     // ------- Phần này dùng để lấy toàn bộ user
 
 
+    // Giải thuật
+    // Duyệt a[]
+    // Tìm kiểm vị trí của a[] mà nằm b[]
+    // Xóa vị trí đó trong b[]
+    function Filter_Users(data, data_compare){
+
+        var array_new = [...data]
+
+        for (let i = 0; i < data_compare.length; i++){
+
+            const index = array_new.findIndex(value => {
+                return value._id === data_compare[i].id_user_following
+            })
+
+            array_new.splice(index, 1)
+
+        }
+
+        return array_new
+
+    }
+
+
+    // ------- Khi nguoi dung bam vao tha tym
+    const handler_Click_Tym = (id_image_post, id_user_following, image_body) => {
+
+        const fetchData = async () => {
+
+            // Xử lý thêm dữ liệu vào Database Like
+            const params = {
+                id_user: sessionStorage.getItem('id_user'),
+                id_image_post: id_image_post
+            }
+
+            const query = '?' + queryString.stringify(params)
+
+            const response = await Like.post_like(query)
+            console.log(response)
+
+            // Nếu mà user like bài viết của chính nó thì mình sẽ gán nó bằng session
+            // còn nếu không phải thì mình lấy id_user_following
+            let id_temp_following = id_user_following === '' ? sessionStorage.getItem('id_user') : id_user_following
+
+            // Xử lý thêm dữ liệu vào Database Favorite
+            const params_far = {
+                id_user: sessionStorage.getItem('id_user'),
+                id_user_another: id_temp_following,
+                id_image_post: id_image_post,
+                category: false
+            }
+
+            const query_far = '?' + queryString.stringify(params_far)
+
+            const response_far = await Favorite.post_Favorite(query_far)
+            console.log(response_far)
+
+        }
+
+        fetchData()
+
+        const data = {
+            id_user: sessionStorage.getItem('id_user'),
+            id_user_another: id_user_following
+        }
+
+        socket.emit('like', data)
+
+        set_reload(true)
+
+    }
+
+
+    //------- Khi nguoi dung bam vao hủy tha tym
+    const handler_Click_Untym = (id_image_post, id_user_following) => {
+
+        const fetchData = async () => {
+
+            // Xử lý delete dữ liệu Database Like
+            const params = {
+                id_user: sessionStorage.getItem('id_user'),
+                id_image_post: id_image_post
+            }
+
+            const query = '?' + queryString.stringify(params)
+
+            const response = await Like.put_unlike(query)
+            console.log(response)
+
+        }
+
+        fetchData()
+
+
+        // Nếu mà user like bài viết của chính nó thì mình sẽ gán nó bằng session
+        // còn nếu không phải thì mình lấy id_user_following        
+        let id_temp_following = id_user_following === '' ? sessionStorage.getItem('id_user') : id_user_following
+
+        console.log(id_temp_following)
+
+        const deleteData = async () => {
+
+            // Xử lý delete dữ liệu Database Favorite
+            const params = {
+                id_user: id_temp_following ,
+                id_user_another: sessionStorage.getItem('id_user'),
+            }
+
+            console.log(params)
+
+            const query = '?' + queryString.stringify(params)
+
+            console.log(query)
+
+            const response = await Favorite.delete_Favorite(query)
+            console.log(response)
+
+        }
+
+
+        deleteData()
+
+        set_reload(true)
+
+    }
+
+
+
+    //---- Phần này dùng để show modal khi user bấm kiểm tra số lượng người like ----//
+
+    const [id_image_post, set_id_image_post] = useState('')
+
+    const [load_modal, set_load_modal] = useState(false)
+
+    const [users_like, set_users_like] = useState([])
+
+    // Hàm này để lấy id_image_post khi mà bấm vào xem like của bài viết đó
+    const GET_id_image_post = (value) => {
+
+        set_id_image_post(value)
+
+        set_load_modal(true) // khởi động load dữ liệu ra modal
+
+    }
+
+    useEffect(() => {
+
+        if(load_modal){
+
+            const fetchData = async () => {
+
+                const params = {
+                    id_image_post: id_image_post
+                }
+    
+                const query = '?' + queryString.stringify(params)
+
+                const response = await Like.count_like(query)
+
+                set_users_like(response)
+
+            }
+
+            fetchData()
+
+        }
+
+    }, [load_modal])
+
+
+
+
+    //Hàm này dùng để format icon
+    function formatIcon(send) {
+        
+        //Đây là list icon dùng để duyệt và đổ ra dữ liệu
+        const icon = [
+            { id: 1, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/742/742760.svg' />`, category: ':('},
+            { id: 2, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/742/742750.svg' />`, category: '*_*'},
+            { id: 3, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/742/742920.svg' />`, category: ':)'},
+            { id: 4, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/742/742822.svg' />`, category: 'T_T'},
+            { id: 5, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/742/742787.svg' />`, category: '-,-'},
+            { id: 6, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/725/725107.svg' />`, category: ':9'},
+            { id: 7, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/743/743217.svg' />`, category: ':4'},
+            { id: 8, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/743/743255.svg' />`, category: ':2'},
+            { id: 9, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/1933/1933691.svg' />`, category: '<3'},
+            { id: 10, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/1933/1933833.svg' />`, category: ').'},
+            { id: 11, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/1933/1933642.svg' />`, category: ':z'},
+            { id: 12, image: `<img src='https://www.flaticon.com/svg/static/icons/svg/1933/1933179.svg' />`, category: ':8'},
+        ]
+
+        //Duyệt vòng foreach của list icon để kiểm tra chuỗi truyền vào có tồn tại category không
+        //Nếu trong cái chuỗi string đó có tồn tại category của icon thì nó sẽ replace thành thẻ <image>
+        icon.forEach(element => {
+            if (send.indexOf(element.category) > -1){
+                console.log("True")
+
+                //Replace
+                send = send.replace(element.category, element.image)
+
+            }
+        });
+
+        return send
+    }
+   
+
 
     return (
         <div className="container mt-5 pt-5">
@@ -244,7 +502,7 @@ function Home(props) {
                     <div className="content_home">
                         <div className="box_status d-flex">
                             <img className="img_status" src={user.image_profile} alt="" />
-                            <a className="a_status" data-toggle="modal" data-target="#exampleModalLong">Bạn đang nghĩ cái gì thế!</a>
+                            <span className="a_status" data-toggle="modal" data-target="#exampleModalLong">Bạn đang nghĩ cái gì thế!</span>
 
                             <div className="modal fade mt-5" id="exampleModalLong" tabIndex="-1" role="dialog" aria-hidden="true">
                                 <div className="modal-dialog" role="document">
@@ -258,7 +516,7 @@ function Home(props) {
                                         <div className="modal-body">
                                             <div className="sub_header d-flex">
                                                 <img src={avt} alt="" />
-                                                <a className="a_sub_header mt-2">Tiền Kim</a>
+                                                <span className="a_sub_header mt-2">Tiền Kim</span>
                                             </div>
                                             <div className="sub_body mt-2">
                                                 <textarea value={send} onChange={handlerSend} className="txt_area_sub" rows="2" placeholder="Bạn đang nghĩ gì?"></textarea>
@@ -291,7 +549,7 @@ function Home(props) {
                                                             <div className="icon" onClick={() => onClickIcon(":4")}>
                                                                 <img className="img_icon" src="https://www.flaticon.com/svg/static/icons/svg/743/743217.svg" alt="" />
                                                             </div>
-                                                            <div className="icon" onClick={() => onClickIcon(":")}>
+                                                            <div className="icon" onClick={() => onClickIcon(":2")}>
                                                                 <img className="img_icon" src="https://www.flaticon.com/svg/static/icons/svg/743/743255.svg" alt="" />
                                                             </div>
                                                             <div className="icon" onClick={() => onClickIcon("<3")}>
@@ -317,7 +575,9 @@ function Home(props) {
                                             </div>
                                         </div>
                                         <div className="modal-footer">
-                                            <button type="button" className="btn btn-primary btn_sub_footer" onClick={handler_post_status}>Đăng</button>
+                                            <button type="button" className="btn btn-primary btn_sub_footer" 
+                                                data-dismiss="modal" aria-label="Close"
+                                                onClick={handler_post_status}>Đăng</button>
                                         </div>
                                     </div>
                                 </div>
@@ -329,16 +589,24 @@ function Home(props) {
                             {
                                 list_post_home && list_post_home.map(value => (
                                     <div className="box_poster_another mt-4 mb-4" key={value._id}>
-                                        <div className="post_header d-flex p-3">
+                                        <Link to={`/account/${value.id_user_following}`} className="post_header d-flex p-3">
                                             <img src={value.image_profile_following} alt="" className="image_post_header" />
                                             <span className="span_post_header">{value.username_following}</span>
-                                        </div>
+                                        </Link>
                                         <div className="post_body">
-                                            <img src={value.image_body}
-                                                className="image_post_body" />
+                                            <Link to={value.id_user_following === '' ? 
+                                                `/post/${value.id_image_post}_${sessionStorage.getItem('id_user')}` : 
+                                                `/post/${value.id_image_post}_${value.id_user_following}`}>
+                                                <img src={value.image_body} alt="" className="image_post_body" />
+                                            </Link>
                                             <div className="action_post_body d-flex justify-content-between">
                                                 <div className="left_action p-3">
-                                                    <i className="fa fa-heart-o" style={{ fontSize: '30px', cursor: 'pointer' }}></i>
+                                                    {
+                                                        value.status_like ? <i className="fa fa-heart" onClick={() => handler_Click_Untym(value.id_image_post, value.id_user_following)} style={{ fontSize: '30px', cursor: 'pointer', color: '#f14444' }}></i> :
+                                                            <i className="fa fa-heart-o" 
+                                                                onClick={() => handler_Click_Tym(value.id_image_post, value.id_user_following, value.image_body)} 
+                                                                style={{ fontSize: '30px', cursor: 'pointer', }}></i>
+                                                    }
                                                     <i className="fa fa-comment-o ml-3" style={{ fontSize: '30px', cursor: 'pointer' }}></i>
                                                     <i className="fa fa-send-o ml-3" style={{ fontSize: '30px', cursor: 'pointer' }}></i>
                                                 </div>
@@ -346,23 +614,70 @@ function Home(props) {
                                                     <i className="fa fa-star-o" style={{ fontSize: '30px', cursor: 'pointer' }}></i>
                                                 </div>
                                             </div>
-                                            <span className="ml-3" style={{ fontWeight: '600', fontSize: '1rem' }}>Liked by <i style={{ cursor: 'pointer' }}>{value.like} others</i></span>
+                                            <span className="ml-3" style={{ fontWeight: '600', fontSize: '1rem' }}>
+                                                Liked by
+                                                <i style={{ cursor: 'pointer' }}  
+                                                data-toggle="modal" 
+                                                data-target={`#${value.id_image_post}`} 
+                                                onClick={() => GET_id_image_post(value.id_image_post)}> {value.like} others</i>
+                                            </span>
 
                                             <div className="caption_user mt-2">
                                                 <span className="ml-3" style={{ fontWeight: '600', fontSize: '1rem' }}>{value.username_following}</span> &nbsp;
-                                            <span>{value.title}</span>
+                                            <span className="img_title">
+                                                {
+                                                    parse(value.title)
+                                                }
+                                            </span>
                                             </div>
-                                            <Link className="ml-3" style={{ color: 'gray' }} to="/">View all {value.comment} comment</Link>
+                                            <Link className="ml-3" style={{ color: 'gray' }} to={
+                                                value.id_user_following === '' ? 
+                                                `/post/${value.id_image_post}_${sessionStorage.getItem('id_user')}` : 
+                                                `/post/${value.id_image_post}_${value.id_user_following}`
+                                            }>View all {value.comment} comment</Link>
                                         </div>
                                         <hr />
                                         <div className="post_footer d-flex pl-3 pr-3 pb-3">
                                             <i className="fa fa-smile-o fa-2x icon_footer" style={{ cursor: 'pointer' }}></i>
                                             <input className="input_footer ml-3" type="text" placeholder="Add a comment" />
-                                            <a className="send_footer ml-3 mt-1">Post</a>
+                                            <span className="send_footer ml-3 mt-1">Post</span>
+                                        </div>                 
+
+                                        {/* Đây là phần Modal khi mà user muốn bấm xem có bao nhiêu người like */}
+                                        <div className="modal fade mt-5" id={`${value.id_image_post}`} tabIndex="-1" role="dialog" aria-hidden="true">
+                                            <div className="modal-dialog" role="document">
+                                                <div className="modal-content">
+                                                    <div className="modal-header">
+                                                        <h5 className="modal-title">List Favorite</h5>
+                                                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div className="modal-body fix-modal-body">
+                                                        {
+                                                            users_like && users_like.map(value => (
+                                                                <div className="box_user_me d-flex pb-3" key={value._id}>
+                                                                    <img className="image_user_me" src={value.image_profile} alt="" />
+                                                                    <div className="title_user_me d-flex justify-content-between ml-3">
+                                                                        <div className="name_user_me">
+                                                                            <div style={{ fontWeight: '600' }}>{value.username}</div>
+                                                                            <div style={{ color: 'gray' }}>{value.name}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
+
+
                                     </div>
                                 ))
                             }
+                            
+
                         </div>
 
                     </div>
@@ -383,8 +698,8 @@ function Home(props) {
                                 </div>
                             </div>
                             <div className="d-flex justify-content-between mt-4">
-                                <a style={{ color: 'gray' }}>Suggestions For You</a>
-                                <a href="#" style={{ color: 'black', fontSize: '.85rem', fontWeight: '600' }}>See All</a>
+                                <span style={{ color: 'gray' }}>Suggestions For You</span>
+                                <span href="#" style={{ color: 'black', fontSize: '.85rem', fontWeight: '600' }}>See All</span>
                             </div>
                             <div className="mt-2">
                                 {
@@ -395,13 +710,15 @@ function Home(props) {
                                             </Link>
                                             <div className="title_user_me d-flex justify-content-between ml-3">
                                                 <div>
-                                                    <Link to={`/account/${value._id}`} style={{ textDecoration: 'none'}}>
+                                                    <Link to={`/account/${value._id}`} style={{ textDecoration: 'none' }}>
                                                         <span style={{ fontWeight: '600', fontSize: '.85rem', cursor: 'pointer', color: 'black' }}>{value.username}</span>
                                                     </Link>
                                                     <br />
                                                     <span style={{ color: 'gray', fontSize: '.85rem', cursor: 'pointer' }}>{value.name}</span>
                                                 </div>
-                                                <span className="mt-3" style={{ color: '#33AAF7', fontWeight: 600, fontSize: '.9rem' }}>Add</span>
+                                                <Link className="mt-2" to={`/account/${value._id}`} style={{ textDecoration: 'none' }}>
+                                                    <span style={{ color: '#33AAF7', fontWeight: 600, fontSize: '.9rem' }}>Follow</span>
+                                                </Link>
                                             </div>
                                         </div>
                                     ))

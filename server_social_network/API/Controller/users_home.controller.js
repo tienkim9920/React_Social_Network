@@ -39,14 +39,15 @@ module.exports.post_status = async (req, res) => {
         username_following: user.username,
         like: '0',
         comment: '0',
-        image_profile_following: user.image_profile
+        image_profile_following: user.image_profile,
+        status_like: false
     }
 
     await Users_Home.create(data)
 
 
     // Tiếp theo phần dùng để đẩy cái bài post đó vào 
-    // database nhưng mà bên phía những user đang following user này
+    // database nhưng mà bên phía những user đang following user mà đăng bài
     const these_users_following = await Following.find({ id_user_following: id_user })
 
     // duyệt vòng for những user đang following user post bài để thêm mới vào database 
@@ -66,14 +67,15 @@ module.exports.post_status = async (req, res) => {
         id_image_post: id_image_post,
         title: title,
         image_body: image_body,
-        like: '0',
-        comment: '0',
     }
 
     const users_activity = await Users_Activity.findOne({ id_user: id_user })
 
     if (users_activity){
+        users_activity.post = parseInt(users_activity.post) + 1
         users_activity.list_image.push(list_image)
+
+        users_activity.save()
     }else{
 
         const data_activity = {

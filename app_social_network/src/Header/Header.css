@@ -67,6 +67,7 @@
 .image_drop_like{
     width: 40px;
     height: 40px;
+    margin-top: .6rem;
 }
 
 .a_deny{
@@ -87,8 +88,8 @@
 .drop_menu_notice{
     position: fixed;
     top: 4rem;
-    left: 55.5%;
-    width: 31%;
+    left: 48%;
+    width: 33%;
     height: 300px;
     overflow: auto !important;
     background-color: #fff;
@@ -107,6 +108,47 @@
 .navbar-nav{
     flex-direction: row;
     /* justify-content: center; */
+}
+
+.a_drop_notification{
+    position: relative;
+}
+
+.span_drop_notification{
+    position: absolute;
+    top: -60%;
+    left: 78%;
+    background-color: rgb(248, 81, 69);
+    color: #fff;
+    padding: .1rem .48rem;
+    border-radius: 50%;
+    font-size: .8rem;
+}
+
+.link_search{
+    text-decoration: none !important;
+    color: #333333;
+}
+
+.link_search:hover{
+    background-color: rgb(241, 241, 241);
+}
+
+.link_notice{
+    text-decoration: none !important;
+}
+
+.link_notice:hover{
+    background-color: rgb(241, 241, 241);
+}
+
+.link_tym{
+    text-decoration: none !important;
+    color: #333333;
+}
+
+.link_tym:hover{
+    background-color: rgb(241, 241, 241);
 }
 
 @media only screen and (max-width: 400px) {

@@ -10,20 +10,17 @@
 }
 
 .group_image_detail_post{
-    background-color: red;
     width: 100%;
-
 }
 
 .group_content_detail_post{
     background-color: #fff;
     width: 100%;
-
 }
 
 .image_detail_post{
     width: 100%;
-    height: 100%;
+    height: 630px;
 }
 
 .image_header_detail_post{
@@ -36,6 +33,11 @@
     width: 100%;
     height: 370px;
     overflow: auto;
+}
+
+.fa-close:hover{
+    color: rgb(248, 77, 77);
+    cursor: pointer;
 }
 
 @media only screen and (max-width: 400px) {

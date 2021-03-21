@@ -8,7 +8,6 @@ var schema = new mongoose.Schema(
         email: String,
         phone: String,
         password: String,
-        address: String,
         image_profile: String
     }
 );

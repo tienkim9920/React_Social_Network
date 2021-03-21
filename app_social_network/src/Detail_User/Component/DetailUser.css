@@ -22,14 +22,19 @@
     border-radius: .2rem;
     font-weight: 600;
     cursor: pointer;
+    text-decoration: none;
+    color: #323232;
 }
 
 .a_edit_profile:hover{
     background-color: rgb(247, 247, 247);
+    text-decoration: none;
+    color: #323232;
 }
 
 .image_personal_all{
     width: 100%;
+    height: 300px;
 }
 
 .group_grid_image_personal{

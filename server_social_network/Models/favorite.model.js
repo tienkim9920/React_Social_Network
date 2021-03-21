@@ -8,6 +8,8 @@ var schema = new mongoose.Schema(
         image_profile: String,
         id_image_post: String,
         image_body: String,
+        status: Boolean,
+        category: Boolean
     }
 );
 

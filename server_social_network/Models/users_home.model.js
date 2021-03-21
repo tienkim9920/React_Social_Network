@@ -10,7 +10,8 @@ var schema = new mongoose.Schema(
         username_following: String,
         image_profile_following: String,
         like: String,
-        comment: String
+        comment: String,
+        status_like: Boolean
     }
 );
 
